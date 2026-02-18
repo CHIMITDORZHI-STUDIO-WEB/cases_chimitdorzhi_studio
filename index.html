@@ -566,14 +566,9 @@ rel="stylesheet">
                         Выберите подходящий формат и напишите мне. Я помогу с идеей и реализацией.</p>
 
                     <div class="flex flex-col sm:flex-row justify-center gap-6 relative z-10">
-                        <a href="mailto:contact@chimitdorzhi.studio"
-                            class="px-8 py-4 bg-cyan text-dark font-bold rounded hover:bg-white transition-all magnetic-target">
-                            <span x-text="t('cta.btn_email')">Написать на почту</span>
-                        </a>
-                        <a href="#"
-                            class="px-8 py-4 border font-bold rounded hover:bg-white/5 hover:border-white transition-all magnetic-target"
-                            :class="theme === 'light' ? 'border-gray-300 text-gray-800' : 'border-white/20 text-white'">
-                            Telegram
+                        <a href="https://t.me/chimitdorzhi" target="_blank"
+                            class="px-8 py-4 bg-cyan text-dark font-bold rounded hover:bg-white transition-all magnetic-target transform hover:scale-105 duration-300 shadow-[0_0_20px_rgba(0,243,255,0.3)]">
+                            <i class="fa-brands fa-telegram mr-2"></i> Telegram
                         </a>
                     </div>
                 </div>
@@ -732,7 +727,6 @@ rel="stylesheet">
                 },
 
                 t(key) {
-                    if (key === 'cta.btn_email') return 'Telegram';
                     return key.split('.').reduce((o, i) => o[i], this.translations[this.lang]);
                 },
 
