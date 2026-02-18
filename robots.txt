@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://chimitdorzhi-studio-web.github.io/cases_chimitdorzhi_studio/sitemap.xml
