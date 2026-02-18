@@ -579,8 +579,13 @@
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
             <div class="text-center md:text-left">
                 <h4 class="font-display font-bold text-2xl mb-2">CHIMITDORZHI</h4>
-                <p class="text-sm transition-colors" :class="theme === 'light' ? 'text-gray-500' : 'text-gray-500'">©
+                <p class="text-sm transition-colors mb-2"
+                    :class="theme === 'light' ? 'text-gray-500' : 'text-gray-500'">©
                     2026 Chimitdorzhi Studio. All rights reserved.</p>
+                <a href="privacy_policy.html" class="text-xs hover:text-cyan transition-colors"
+                    :class="theme === 'light' ? 'text-gray-400' : 'text-gray-600'">
+                    Политика конфиденциальности
+                </a>
             </div>
 
             <div class="flex space-x-6">
