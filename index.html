@@ -14,6 +14,8 @@ rel="stylesheet">
                 colors: {
                     dark: '#0a0a0a',
                     light: '#f3f4f6',
+                    cyan: '#00f3ff',
+                    orange: '#ff5722',
                     glow: {
                         '0%': { boxShadow: '0 0 5px #00f3ff, 0 0 10px #00f3ff' },
                         '100%': { boxShadow: '0 0 20px #00f3ff, 0 0 40px #00f3ff' },
@@ -273,6 +275,10 @@ rel="stylesheet">
                 <a href="#portfolio" class="text-sm font-medium transition-colors magnetic-target"
                     :class="theme === 'light' ? 'text-gray-600 hover:text-dark' : 'text-gray-400 hover:text-white'"
                     x-text="t('nav.portfolio')">Портфолио</a>
+                <a href="https://t.me/chimitdorzhi" target="_blank"
+                    class="text-sm font-medium transition-colors magnetic-target"
+                    :class="theme === 'light' ? 'text-gray-600 hover:text-dark' : 'text-gray-400 hover:text-white'"
+                    x-text="t('nav.contact')">Связаться</a>
 
                 <!-- Theme Toggle -->
                 <button @click="toggleTheme"
@@ -632,7 +638,7 @@ rel="stylesheet">
 
                 translations: {
                     ru: {
-                        nav: { services: 'Услуги', portfolio: 'Портфолио' },
+                        nav: { services: 'Услуги', portfolio: 'Портфолио', contact: 'Связаться' },
                         badge: 'Ближайший слот: Март 2026',
                         hero: {
                             title: 'Веб-разработка\nручной работы',
@@ -668,7 +674,7 @@ rel="stylesheet">
                         }
                     },
                     en: {
-                        nav: { services: 'Services', portfolio: 'Portfolio' },
+                        nav: { services: 'Services', portfolio: 'Portfolio', contact: 'Contact' },
                         badge: 'Next Slot: March 2026',
                         hero: {
                             title: 'Handcrafted\nWeb Development',
@@ -689,7 +695,7 @@ rel="stylesheet">
                         }
                     },
                     zh: {
-                        nav: { services: '服务', portfolio: '作品集' },
+                        nav: { services: '服务', portfolio: '作品集', contact: '联系' },
                         badge: '下一个时段：2026年3月',
                         hero: {
                             title: '手工制作\n网页开发',
