@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chimitdorzhi Studio | Cyber-Bento Portfolio</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0a0a0a',
+                        light: '#f3f4f6',
+                        glow: {
+                            '0%': { boxShadow: '0 0 5px #00f3ff, 0 0 10px #00f3ff' },
+                            '100%': { boxShadow: '0 0 20px #00f3ff, 0 0 40px #00f3ff' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        glitch: {
+                            '2%, 64%': { transform: 'translate(2px,0) skew(0deg)' },
+                            '4%, 60%': { transform: 'translate(-2px,0) skew(0deg)' },
+                            '62%': { transform: 'translate(0,0) skew(5deg)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        body {
+            /* Default dark mode bg */
+            background-color: #0a0a0a;
+            color: #ffffff;
+            cursor: none;
+            /* Hide default cursor */
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Light Mode Overrides */
+        html.light body {
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+
+        /* Generative Noise Texture */
+        .bg-noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        html.light .bg-noise {
+            opacity: 0.03;
+            /* Slightly less noise in light mode */
+            filter: invert(1);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        html.light ::-webkit-scrollbar-track {
+            background: #f3f4f6;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+
+        html.light ::-webkit-scrollbar-thumb {
+            background: #ccc;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f3ff;
+        }
+
+        /* Magnetic Cursor */
+        #cursor-dot,
+        #cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        #cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #00f3ff;
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        }
+
+        #cursor-outline {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(0, 243, 255, 0.5);
+            transition: all 0.15s ease-out;
+            /* Smooth follow */
+        }
+
+        /* Cursor colors in light mode? Keep them cyan/orange as brand colors */
+
+        /* Hover states for cursor */
+        body.hovering #cursor-dot {
+            width: 12px;
+            height: 12px;
+            background-color: #ff5722;
+        }
+
+        body.hovering #cursor-outline {
+            width: 60px;
+            height: 60px;
+            border-color: #ff5722;
+            background-color: rgba(255, 87, 34, 0.05);
+        }
+
+        /* Glitch Effect Class */
+        .glitch-text {
+            position: relative;
+        }
+
+        .glitch-text::before,
+        .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+        }
+
+        html.light .glitch-text::before,
+        html.light .glitch-text::after {
+            background: #f3f4f6;
+        }
+
+        .glitch-text::before {
+            left: 2px;
+            text-shadow: -1px 0 #00f3ff;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+
+        .glitch-text::after {
+            left: -2px;
+            text-shadow: -1px 0 #ff5722;
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% {
+                clip: rect(2px, 9999px, 5px, 0);
+            }
+
+            100% {
+                clip: rect(85px, 9999px, 88px, 0);
+            }
+        }
+
+        @keyframes glitch-anim2 {
+            0% {
+                clip: rect(12px, 9999px, 15px, 0);
+            }
+
+            100% {
+                clip: rect(65px, 9999px, 68px, 0);
+            }
+        }
+
+        /* Glass Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+
+        html.light .glass-card {
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 243, 255, 0.3);
+            box-shadow: 0 10px 40px -10px rgba(0, 243, 255, 0.1);
+        }
+    </style>
+</head>
+
+<body class="font-sans antialiased selection:bg-cyan selection:text-dark" x-data="appData">
+
+    <div class="bg-noise z-0"></div> <!-- Keep noise but lower z -->
+
+    <!-- 3D Background Container -->
+    <div id="canvas-container-3d" class="fixed inset-0 -z-10 pointer-events-none fade-in"></div>
+
+    <!-- Cursor Elements -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-outline"></div>
+
+    <!-- Three.js & Background Script -->
+    <script src="assets/js/three.min.js"></script>
+    <script src="assets/js/background-3d.js" defer></script>
+
+    <!-- Navigation -->
+    <header class="fixed w-full top-0 z-50 glass-card border-b border-white/5"
+        :class="theme === 'light' ? 'border-gray-200' : 'border-white/5'" x-data="{ scrolled: false }"
+        @scroll.window="scrolled = (window.pageYOffset > 20)">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="#"
+                class="font-display font-bold text-2xl tracking-tighter hover:text-cyan transition-colors magnetic-target">
+                CHIMITDORZHI
+            </a>
+
+            <div class="hidden md:flex items-center space-x-8">
+                <!-- Nav Links -->
+                <a href="#services" class="text-sm font-medium transition-colors magnetic-target"
+                    :class="theme === 'light' ? 'text-gray-600 hover:text-dark' : 'text-gray-400 hover:text-white'"
+                    x-text="t('nav.services')">Услуги</a>
+                <a href="#portfolio" class="text-sm font-medium transition-colors magnetic-target"
+                    :class="theme === 'light' ? 'text-gray-600 hover:text-dark' : 'text-gray-400 hover:text-white'"
+                    x-text="t('nav.portfolio')">Портфолио</a>
+
+                <!-- Theme Toggle -->
+                <button @click="toggleTheme"
+                    class="w-8 h-8 flex items-center justify-center rounded-full transition-colors magnetic-target"
+                    :class="theme === 'light' ? 'bg-gray-200 text-gray-800' : 'bg-white/10 text-yellow-400'">
+                    <i class="fa-solid" :class="theme === 'light' ? 'fa-moon' : 'fa-sun'"></i>
+                </button>
+
+                <!-- Language Switcher -->
+                <div class="flex space-x-2 text-xs font-bold uppercase">
+                    <button @click="lang = 'en'"
+                        :class="lang === 'en' ? 'text-cyan' : (theme === 'light' ? 'text-gray-400' : 'text-gray-600')"
+                        class="hover:text-cyan transition-colors magnetic-target">EN</button>
+                    <span class="text-gray-600">/</span>
+                    <button @click="lang = 'ru'"
+                        :class="lang === 'ru' ? 'text-cyan' : (theme === 'light' ? 'text-gray-400' : 'text-gray-600')"
+                        class="hover:text-cyan transition-colors magnetic-target">RU</button>
+                    <span class="text-gray-600">/</span>
+                    <button @click="lang = 'zh'"
+                        :class="lang === 'zh' ? 'text-cyan' : (theme === 'light' ? 'text-gray-400' : 'text-gray-600')"
+                        class="hover:text-cyan transition-colors magnetic-target">CN</button>
+                </div>
+            </div>
+
+            <!-- Scarcity Badge -->
+            <div
+                class="flex items-center space-x-2 bg-yellow-400/10 px-3 py-1.5 rounded-full border border-yellow-400/20">
+                <div class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></div>
+                <span class="text-xs font-semibold text-yellow-400 tracking-wide uppercase"
+                    x-text="t('badge')">Ближайший слот: Март 2026</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-20">
+        <!-- Hero Section -->
+        <section class="min-h-screen flex items-center justify-center relative overflow-hidden px-6 lg:px-12">
+            <!-- Background Elements -->
+            <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan/20 rounded-full blur-[120px] animate-float"></div>
+            <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-orange/10 rounded-full blur-[120px] animate-float"
+                style="animation-duration: 8s; animation-delay: 1s;"></div>
+
+            <div class="max-w-4xl w-full relative z-10 text-center space-y-8">
+                <div
+                    class="inline-block mb-4 px-4 py-1 border border-cyan/30 rounded-full text-cyan text-sm tracking-widest font-mono uppercase bg-cyan/5">
+                    Creative Technologist
+                </div>
+
+                <h1 class="font-display font-bold text-5xl md:text-7xl lg:text-8xl leading-tight glitch-text"
+                    :data-text="t('hero.title')">
+                    <span x-html="t('hero.title').replace('\n', '<br>')"></span>
+                </h1>
+
+                <p class="text-lg md:text-xl max-w-2xl mx-auto font-light leading-relaxed transition-colors"
+                    :class="theme === 'light' ? 'text-gray-600' : 'text-gray-400'">
+                    <span x-text="t('hero.subtitle_1')"></span>
+                    <span class="font-medium" :class="theme === 'light' ? 'text-dark' : 'text-white'"
+                        x-text="t('hero.subtitle_highlight')"></span>.
+                    <span x-text="t('hero.subtitle_2')"></span>
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-6 pt-8">
+                    <a href="#portfolio"
+                        class="magnetic-target px-8 py-4 bg-white text-dark font-bold font-display tracking-wide hover:bg-cyan hover:shadow-[0_0_20px_rgba(0,243,255,0.4)] transition-all transform hover:-translate-y-1 rounded-sm border border-transparent"
+                        :class="theme === 'light' ? 'bg-dark text-white hover:text-dark' : ''">
+                        <span x-text="t('hero.btn_portfolio')">Смотреть проекты</span>
+                    </a>
+                    <a href="#services"
+                        class="magnetic-target px-8 py-4 border font-display font-bold hover:bg-white/5 hover:border-white transition-all rounded-sm"
+                        :class="theme === 'light' ? 'border-gray-300 text-gray-800 hover:bg-gray-200' : 'border-white/20 text-white'">
+                        <span x-text="t('hero.btn_services')">Выбрать формат</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Target Audience Section -->
+        <section id="target" class="py-16 px-6 border-y backdrop-blur-sm transition-colors"
+            :class="theme === 'light' ? 'bg-white/50 border-gray-200' : 'bg-dark/50 border-white/5'">
+            <div class="max-w-7xl mx-auto text-center">
+                <h2 class="font-display text-2xl md:text-3xl font-bold mb-8 text-transparent bg-clip-text"
+                    :class="theme === 'light' ? 'bg-gradient-to-r from-gray-800 to-gray-500' : 'bg-gradient-to-r from-white to-gray-500'"
+                    x-text="t('audience.title')">
+                    Кому нужна такая упаковка прямо сейчас?
+                </h2>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <template x-for="item in t('audience.list')">
+                        <span
+                            class="magnetic-target px-5 py-2.5 rounded-full border bg-opacity-5 transition-all cursor-default"
+                            :class="theme === 'light' 
+                                  ? 'border-gray-200 bg-gray-100 text-gray-600 hover:text-cyan hover:border-cyan/50 hover:bg-cyan/10' 
+                                  : 'border-white/10 bg-white text-gray-300 hover:text-cyan hover:border-cyan/50 hover:bg-cyan/10'"
+                            x-text="item">
+                        </span>
+                    </template>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section (Bento Grid) -->
+        <section id="services" class="py-24 px-6 relative">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="font-display text-4xl font-bold mb-16 text-center">
+                    <span x-text="t('services.title')">Выбирай свой формат</span> <span class="text-cyan">.</span>
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-fr">
+                    <!-- Card 1: Digital Business Card -->
+                    <div
+                        class="glass-card p-8 rounded-2xl flex flex-col items-center text-center group hover:border-cyan/50 magnetic-target relative overflow-hidden">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-b from-cyan/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        </div>
+
+                        <div class="relative z-10 w-full h-full flex flex-col">
+                            <div
+                                class="w-16 h-16 bg-dark rounded-2xl flex items-center justify-center text-cyan text-3xl mb-6 border border-white/10 mx-auto shadow-[0_0_15px_rgba(0,243,255,0.1)]">
+                                <i class="fa-solid fa-id-card"></i>
+                            </div>
+                            <h3 class="font-display text-2xl font-bold mb-2" x-text="t('services.card1.title')">ЦИФРОВАЯ
+                                ВИЗИТКА</h3>
+                            <div class="text-3xl font-bold text-cyan mb-4" x-text="t('services.card1.price')">10 000 ₽
+                            </div>
+                            <p class="text-sm flex-grow mb-6 transition-colors"
+                                :class="theme === 'light' ? 'text-gray-500' : 'text-gray-400'"
+                                x-text="t('services.card1.desc')">Всё важное на одной странице. Замена Taplink. Без
+                                ежемесячных подписок и оплат.</p>
+
+                            <a href="#portfolio"
+                                class="w-full py-3 border border-white/20 rounded hover:bg-cyan hover:text-dark hover:border-cyan transition-colors font-semibold"
+                                :class="theme === 'light' ? 'text-gray-800 border-gray-300' : 'text-white'"
+                                x-text="t('services.btn_examples')">Примеры</a>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Presentation Site (Highlight) -->
+                    <div
+                        class="glass-card transform md:-translate-y-4 p-8 rounded-2xl flex flex-col items-center text-center group hover:border-orange/50 magnetic-target relative overflow-hidden border-t-orange/20 shadow-[0_0_30px_rgba(255,87,34,0.05)]">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-b from-orange/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        </div>
+                        <div class="absolute top-4 right-4 px-3 py-1 bg-orange/20 text-orange text-xs font-bold rounded-full uppercase tracking-wider border border-orange/20"
+                            x-text="t('services.badge_hit')">
+                            Хит продаж
+                        </div>
+
+                        <div class="relative z-10 w-full h-full flex flex-col">
+                            <div
+                                class="w-16 h-16 bg-dark rounded-2xl flex items-center justify-center text-orange text-3xl mb-6 border border-white/10 mx-auto shadow-[0_0_15px_rgba(255,87,34,0.1)]">
+                                <i class="fa-solid fa-layer-group"></i>
+                            </div>
+                            <h3 class="font-display text-2xl font-bold mb-2" x-text="t('services.card2.title')">
+                                САЙТ-ПРЕЗЕНТАЦИЯ</h3>
+                            <div class="text-3xl font-bold text-orange mb-4" x-text="t('services.card2.price')">20 000 ₽
+                            </div>
+                            <p class="text-sm flex-grow mb-6 transition-colors"
+                                :class="theme === 'light' ? 'text-gray-500' : 'text-gray-400'"
+                                x-text="t('services.card2.desc')">Портфолио, которое продает ваши услуги. Упор на визуал
+                                и анимации.</p>
+
+                            <a href="#portfolio"
+                                class="w-full py-3 bg-orange text-white rounded hover:bg-orange/80 transition-colors font-semibold shadow-lg shadow-orange/20"
+                                x-text="t('services.btn_examples')">Примеры</a>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Full Website -->
+                    <div
+                        class="glass-card p-8 rounded-2xl flex flex-col items-center text-center group hover:border-purple-500/50 magnetic-target relative overflow-hidden">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-b from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        </div>
+
+                        <div class="relative z-10 w-full h-full flex flex-col">
+                            <div
+                                class="w-16 h-16 bg-dark rounded-2xl flex items-center justify-center text-purple-400 text-3xl mb-6 border border-white/10 mx-auto shadow-[0_0_15px_rgba(192,132,252,0.1)]">
+                                <i class="fa-solid fa-code"></i>
+                            </div>
+                            <h3 class="font-display text-2xl font-bold mb-2" x-text="t('services.card3.title')">
+                                ПОЛНОЦЕННЫЙ САЙТ</h3>
+                            <div class="text-3xl font-bold text-purple-400 mb-4" x-text="t('services.card3.price')">30
+                                000 ₽</div>
+                            <p class="text-sm flex-grow mb-6 transition-colors"
+                                :class="theme === 'light' ? 'text-gray-500' : 'text-gray-400'"
+                                x-text="t('services.card3.desc')">Сложная структура, кейсы и имидж. Многостраничный
+                                ресурс или каталог.</p>
+
+                            <a href="#portfolio"
+                                class="w-full py-3 border border-white/20 rounded hover:bg-purple-500 hover:text-white hover:border-purple-500 transition-colors font-semibold"
+                                :class="theme === 'light' ? 'text-gray-800 border-gray-300' : 'text-white'"
+                                x-text="t('services.btn_examples')">Примеры</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Portfolio Section -->
+        <section id="portfolio" class="py-24 px-6 transition-colors"
+            :class="theme === 'light' ? 'bg-gray-100' : 'bg-dark/50'">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+                    <div>
+                        <h2 class="font-display text-4xl font-bold mb-4"><span x-text="t('portfolio.title')">Мои
+                                работы</span> <span class="text-orange">.</span></h2>
+                        <p class="max-w-md transition-colors"
+                            :class="theme === 'light' ? 'text-gray-500' : 'text-gray-400'"
+                            x-text="t('portfolio.subtitle')">Коллекция работ, демонстрирующая внимание к деталям и
+                            технологичность решений.</p>
+                    </div>
+
+                    <!-- Filter Buttons -->
+                    <div class="flex flex-wrap gap-2">
+                        <template x-for="item in ['all', 'business-card', 'presentation', 'full-site']">
+                            <button @click="filter = item" :class="{
+                                    'bg-white text-dark border-white': filter === item && theme === 'dark',
+                                    'bg-dark text-white border-dark': filter === item && theme === 'light',
+                                    'bg-transparent text-gray-400 border-white/10 hover:border-white/30': filter !== item && theme === 'dark',
+                                    'bg-transparent text-gray-500 border-gray-300 hover:border-gray-500': filter !== item && theme === 'light'
+                                }"
+                                class="px-4 py-2 border rounded-full text-sm font-medium transition-all magnetic-target capitalize"
+                                x-text="t('portfolio.filters.' + item)"></button>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-[350px]">
+                    <template x-for="project in filteredProjects" :key="project.url">
+                        <a :href="project.url" target="_blank" :class="{
+                               'glass-card rounded-2xl overflow-hidden group relative block transition-all duration-500 hover:z-10': true,
+                               'md:col-span-2 md:row-span-2': project.size === 'large',
+                               'md:col-span-2': project.size === 'wide',
+                               'md:col-span-1': project.size === 'normal'
+                           }">
+
+                            <!-- Snapshot -->
+                            <div class="absolute inset-0 bg-dark">
+                                <img :src="`assets/images/${project.img}`"
+                                    class="w-full h-full object-cover object-top opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 ease-out"
+                                    alt="Project Thumbnail">
+                            </div>
+
+                            <!-- Overlay -->
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-dark via-dark/50 to-transparent opacity-90 group-hover:opacity-60 transition-opacity duration-500">
+                            </div>
+
+                            <!-- Content -->
+                            <div
+                                class="absolute bottom-0 left-0 w-full p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                                <div class="flex justify-between items-center">
+                                    <h3 class="font-display font-bold text-xl text-white group-hover:text-cyan transition-colors"
+                                        x-text="project.title[lang]"></h3>
+                                    <span
+                                        class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-sm group-hover:bg-cyan group-hover:text-dark transition-all">
+                                        <i
+                                            class="fa-solid fa-arrow-up-right text-xs text-white group-hover:text-dark"></i>
+                                    </span>
+                                </div>
+                                <div class="flex items-center space-x-2 mt-2">
+                                    <span class="text-xs text-gray-300 uppercase tracking-wider"
+                                        x-text="t('portfolio.categories.' + project.category)"></span>
+                                    <!-- Price tag in card -->
+                                    <span class="text-[10px] px-2 py-0.5 rounded bg-white/10 text-white/90"
+                                        x-text="project.category === 'business-card' ? t('prices.card') : (project.category === 'presentation' ? t('prices.pres') : t('prices.site'))"></span>
+                                </div>
+                            </div>
+                        </a>
+                    </template>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-24 px-6">
+            <div class="max-w-4xl mx-auto text-center">
+                <div class="glass-card p-12 rounded-3xl border border-white/10 relative overflow-hidden"
+                    :class="theme === 'light' ? 'border-gray-200' : 'border-white/10'">
+                    <div
+                        class="absolute top-0 right-0 w-64 h-64 bg-cyan/10 rounded-full blur-[100px] pointer-events-none">
+                    </div>
+                    <div
+                        class="absolute bottom-0 left-0 w-64 h-64 bg-orange/10 rounded-full blur-[100px] pointer-events-none">
+                    </div>
+
+                    <h2 class="font-display text-4xl font-bold mb-6 relative z-10" x-text="t('cta.title')">Готовы
+                        обсудить проект?</h2>
+                    <p class="mb-8 max-w-lg mx-auto relative z-10 transition-colors"
+                        :class="theme === 'light' ? 'text-gray-500' : 'text-gray-400'" x-text="t('cta.subtitle')">
+                        Выберите подходящий формат и напишите мне. Я помогу с идеей и реализацией.</p>
+
+                    <div class="flex flex-col sm:flex-row justify-center gap-6 relative z-10">
+                        <a href="mailto:contact@chimitdorzhi.studio"
+                            class="px-8 py-4 bg-cyan text-dark font-bold rounded hover:bg-white transition-all magnetic-target">
+                            <span x-text="t('cta.btn_email')">Написать на почту</span>
+                        </a>
+                        <a href="#"
+                            class="px-8 py-4 border font-bold rounded hover:bg-white/5 hover:border-white transition-all magnetic-target"
+                            :class="theme === 'light' ? 'border-gray-300 text-gray-800' : 'border-white/20 text-white'">
+                            Telegram
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t pt-16 pb-8 px-6 transition-colors"
+        :class="theme === 'light' ? 'bg-gray-100 border-gray-200 text-gray-800' : 'bg-dark border-white/10 text-white'">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="text-center md:text-left">
+                <h4 class="font-display font-bold text-2xl mb-2">CHIMITDORZHI</h4>
+                <p class="text-sm transition-colors" :class="theme === 'light' ? 'text-gray-500' : 'text-gray-500'">©
+                    2026 Chimitdorzhi Studio. All rights reserved.</p>
+            </div>
+
+            <div class="flex space-x-6">
+                <a href="#"
+                    class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center transition-all magnetic-target"
+                    :class="theme === 'light' ? 'text-gray-500 border-gray-300 hover:text-dark hover:border-dark' : 'text-gray-400 hover:text-white hover:border-white hover:bg-white/5'">
+                    <i class="fa-brands fa-telegram"></i>
+                </a>
+                <a href="#"
+                    class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center transition-all magnetic-target"
+                    :class="theme === 'light' ? 'text-gray-500 border-gray-300 hover:text-dark hover:border-dark' : 'text-gray-400 hover:text-white hover:border-white hover:bg-white/5'">
+                    <i class="fa-brands fa-github"></i>
+                </a>
+                <a href="#"
+                    class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center transition-all magnetic-target"
+                    :class="theme === 'light' ? 'text-gray-500 border-gray-300 hover:text-dark hover:border-dark' : 'text-gray-400 hover:text-white hover:border-white hover:bg-white/5'">
+                    <i class="fa-regular fa-envelope"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('appData', () => ({
+                lang: 'ru', // 'ru', 'en', 'zh'
+                theme: 'dark', // 'dark', 'light'
+
+                filter: 'all',
+
+                toggleTheme() {
+                    this.theme = this.theme === 'dark' ? 'light' : 'dark';
+                    if (this.theme === 'light') {
+                        document.documentElement.classList.add('light');
+                    } else {
+                        document.documentElement.classList.remove('light');
+                    }
+                },
+
+                translations: {
+                    ru: {
+                        nav: { services: 'Услуги', portfolio: 'Портфолио' },
+                        badge: 'Ближайший слот: Март 2026',
+                        hero: {
+                            title: 'Веб-разработка\nручной работы',
+                            subtitle_1: 'Пока другие настраивают шаблоны, я пишу код для ваших ',
+                            subtitle_highlight: 'уникальных задач',
+                            subtitle_2: 'Никаких конструкторов. Только чистый, производительный код.',
+                            btn_portfolio: 'Смотреть проекты',
+                            btn_services: 'Выбрать формат'
+                        },
+                        audience: {
+                            title: 'Кому нужна такая упаковка прямо сейчас?',
+                            list: ['Экспертам, коучам', 'Предпринимателям', 'Блогерам', 'Фотографам, стилистам', 'Лидерам MLM']
+                        },
+                        services: {
+                            title: 'Выбирай свой формат',
+                            badge_hit: 'Хит продаж',
+                            btn_examples: 'Примеры',
+                            card1: { title: 'ЦИФРОВАЯ ВИЗИТКА', price: '10 000 ₽', desc: 'Всё важное на одной странице. Замена Taplink.' },
+                            card2: { title: 'САЙТ-ПРЕЗЕНТАЦИЯ', price: '20 000 ₽', desc: 'Портфолио, которое продает ваши услуги. Упор на визуал.' },
+                            card3: { title: 'ПОЛНОЦЕННЫЙ САЙТ', price: '30 000 ₽', desc: 'Сложная структура, кейсы и имидж. Многостраничный ресурс.' }
+                        },
+                        portfolio: {
+                            title: 'Мои работы',
+                            subtitle: 'Коллекция работ, демонстрирующая внимание к деталям и технологичность решений.',
+                            filters: { all: 'Все', 'business-card': 'Визитки', presentation: 'Презентации', 'full-site': 'Сайты' },
+                            categories: { 'business-card': 'Визитка', presentation: 'Презентация', 'full-site': 'Сайт' }
+                        },
+                        prices: { card: '10 000 ₽', pres: '20 000 ₽', site: '30 000 ₽' },
+                        cta: {
+                            title: 'Готовы обсудить проект?',
+                            subtitle: 'Выберите подходящий формат и напишите мне. Я помогу с идеей и реализацией.',
+                            btn_email: 'Написать на почту'
+                        }
+                    },
+                    en: {
+                        nav: { services: 'Services', portfolio: 'Portfolio' },
+                        badge: 'Next Slot: March 2026',
+                        hero: {
+                            title: 'Handcrafted\nWeb Development',
+                            card2: { title: 'PRESENTATION SITE', price: '$300', desc: 'Portfolio that sells your services. Visuals & Animations.' },
+                            card3: { title: 'FULL WEBSITE', price: '$450', desc: 'Complex structure, cases, and image. Multi-page resource.' }
+                        },
+                        portfolio: {
+                            title: 'My Work',
+                            subtitle: 'A collection of projects demonstrating attention to detail and tech solutions.',
+                            filters: { all: 'All', 'business-card': 'Cards', presentation: 'Presentations', 'full-site': 'Sites' },
+                            categories: { 'business-card': 'Card', presentation: 'Presentation', 'full-site': 'Site' }
+                        },
+                        prices: { card: '$150', pres: '$300', site: '$450' },
+                        cta: {
+                            title: 'Ready to discuss?',
+                            subtitle: 'Choose a format and email me. I will help with the idea and execution.',
+                            btn_email: 'Email Me'
+                        }
+                    },
+                    zh: {
+                        nav: { services: '服务', portfolio: '作品集' },
+                        badge: '下一个时段：2026年3月',
+                        hero: {
+                            title: '手工制作\n网页开发',
+                            subtitle_1: '当别人调整模板时，我为您的',
+                            subtitle_highlight: '独特目标',
+                            subtitle_2: '编写代码。没有构建器。只有纯粹的高性能代码。',
+                            btn_portfolio: '查看项目',
+                            btn_services: '选择格式'
+                        },
+                        audience: {
+                            title: '现在谁需要这种包装？',
+                            list: ['专家和教练', '企业家', '内容创作者', '设计师和造型师', '传销领导者']
+                        },
+                        services: {
+                            title: '选择您的格式',
+                            badge_hit: '畅销',
+                            btn_examples: '例子',
+                            card1: { title: '数字名片', price: '¥1,000', desc: '所有重要的东西都在一页上。比Linktree好。' },
+                            card2: { title: '演示网站', price: '¥2,000', desc: '销售您服务的作品集。视觉效果和动画。' },
+                            card3: { title: '完整网站', price: '¥3,000', desc: '复杂的结构，案例和形象。多页资源。' }
+                        },
+                        portfolio: {
+                            title: '我的作品',
+                            subtitle: '展示对细节和技术解决方案关注的项目集。',
+                            filters: { all: '全部', 'business-card': '名片', presentation: '演示', 'full-site': '网站' },
+                            categories: { 'business-card': '名片', presentation: '演示', 'full-site': '网站' }
+                        },
+                        prices: { card: '¥1,000', pres: '¥2,000', site: '¥3,000' },
+                        cta: {
+                            title: '准备好讨论了吗？',
+                            subtitle: '选择一种格式并给我发电子邮件。我将协助想法和执行。',
+                            btn_email: 'Telegram'
+                        }
+                    }
+                },
+
+                t(key) {
+                    if (key === 'cta.btn_email') return 'Telegram';
+                    return key.split('.').reduce((o, i) => o[i], this.translations[this.lang]);
+                },
+
+                projects: [
+                    { title: { ru: 'Визитка студии', en: 'Studio Card', zh: '工作室名片' }, category: 'business-card', url: 'https://chimitdorzhi-studio-web.github.io/bisiness_card/', size: 'normal', img: 'business_card.jpg' },
+                    { title: { ru: 'Home Shell (Продюсер)', en: 'Home Shell (Producer)', zh: 'Home Shell (制片人)' }, category: 'business-card', url: 'https://chimitdorzhi-studio-web.github.io/home_shell/', size: 'normal', img: 'home_shell.jpg' },
+                    { title: { ru: 'Textile Otaku', en: 'Textile Otaku', zh: 'Textile Otaku' }, category: 'business-card', url: 'https://chimitdorzhi-studio-web.github.io/textile_otaku/', size: 'normal', img: 'textile_otaku.jpg' },
+                    { title: { ru: 'Жанна Ж. (Ивент)', en: 'Zhanna Zh. (Event)', zh: 'Zhanna Zh. (活动)' }, category: 'business-card', url: 'https://chimitdorzhi-studio-web.github.io/zhanna_zh/', size: 'normal', img: 'zhanna_zh.jpg' },
+                    { title: { ru: 'Оюна (Админ)', en: 'Oiuna (Admin)', zh: 'Oiuna (行政)' }, category: 'business-card', url: 'https://chimitdorzhi-studio-web.github.io/oiuna888/', size: 'normal', img: 'oiuna888.jpg' },
+
+                    { title: { ru: 'Нима Пурбуев (Художник)', en: 'Nima Purbuev (Artist)', zh: 'Nima Purbuev (艺术家)' }, category: 'presentation', url: 'https://chimitdorzhi-studio-web.github.io/nima_purbuev/', size: 'normal', img: 'nima_purbuev.jpg' },
+                    { title: { ru: 'Услуги студии (AI)', en: 'Studio Services (AI)', zh: '工作室服务 (AI)' }, category: 'presentation', url: 'https://chimitdorzhi-studio-web.github.io/pres_chimitdorzhi_studio/', size: 'large', img: 'pres_chimitdorzhi.jpg' },
+                    { title: { ru: 'Роман Бышин', en: 'Roman Byshin', zh: 'Roman Byshin' }, category: 'presentation', url: 'https://chimitdorzhi-studio-web.github.io/RomanByshin/', size: 'normal', img: 'roman_byshin.jpg' },
+                    { title: { ru: 'Оюна Дарижапова', en: 'Oyuna Darizhapova', zh: 'Oyuna Darizhapova' }, category: 'presentation', url: 'https://chimitdorzhi-studio-web.github.io/DarizhapovaOyuna/', size: 'normal', img: 'darizhapova.jpg' },
+                    { title: { ru: 'Светлана (Адвокат)', en: 'Svetlana (Lawyer)', zh: 'Svetlana (律师)' }, category: 'presentation', url: 'https://chimitdorzhi-studio-web.github.io/svetayurist/', size: 'normal', img: 'svetayurist.jpg' },
+                    { title: { ru: 'Фемида', en: 'Femida', zh: 'Femida' }, category: 'presentation', url: 'https://chimitdorzhi-studio-web.github.io/femida/', size: 'normal', img: 'femida.jpg' },
+
+                    { title: { ru: 'AI Studio', en: 'AI Studio', zh: 'AI 工作室' }, category: 'full-site', url: 'https://chimitdorzhi-studio-web.github.io/chimitdorzhi-studio/', size: 'wide', img: 'chimitdorzhi_studio.jpg' },
+                    { title: { ru: 'ИТ студия (Nayan)', en: 'IT Studio (Nayan)', zh: 'IT 工作室 (Nayan)' }, category: 'full-site', url: 'https://chimitdorzhi-studio-web.github.io/nayan_navaa/', size: 'wide', img: 'nayan_navaa.jpg' }
+                ],
+
+                get filteredProjects() {
+                    if (this.filter === 'all') return this.projects;
+                    return this.projects.filter(p => p.category === this.filter);
+                }
+            }));
+        });
+
+        // Magnetic Cursor Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const cursorDot = document.getElementById('cursor-dot');
+            const cursorOutline = document.getElementById('cursor-outline');
+
+            window.addEventListener('mousemove', (e) => {
+                const posX = e.clientX;
+                const posY = e.clientY;
+
+                cursorDot.style.left = `${posX}px`;
+                cursorDot.style.top = `${posY}px`;
+
+                cursorOutline.animate({
+                    left: `${posX}px`,
+                    top: `${posY}px`
+                }, { duration: 500, fill: "forwards" });
+
+                // Hover check
+                const target = e.target.closest('.magnetic-target');
+                if (target) {
+                    document.body.classList.add('hovering');
+                } else {
+                    document.body.classList.remove('hovering');
+                }
+            });
+
+            // Intersection Observer
+            const observerOptions = {
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('opacity-100', 'translate-y-0');
+                        entry.target.classList.remove('opacity-0', 'translate-y-10');
+                    }
+                });
+            }, observerOptions);
+
+            // Wait for alpine to render
+            setTimeout(() => {
+                document.querySelectorAll('section > div').forEach(section => {
+                    section.classList.add('transition-all', 'duration-1000', 'opacity-0', 'translate-y-10');
+                    observer.observe(section);
+                });
+            }, 500);
+        });
+    </script>
+</body>
+
+</html>
