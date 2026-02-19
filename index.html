@@ -1,5 +1,17 @@
-href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
-rel="stylesheet">
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chimitdorzhi Studio | Портфолио веб-разработчика</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 
 <!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -218,6 +230,54 @@ rel="stylesheet">
         border-color: rgba(0, 243, 255, 0.3);
         box-shadow: 0 10px 40px -10px rgba(0, 243, 255, 0.1);
     }
+
+    /* ============================================================
+       Mobile Optimizations
+       ============================================================ */
+
+    /* Restore cursor on touch devices */
+    @media (hover: none), (pointer: coarse) {
+        body { cursor: auto; }
+        #cursor-dot, #cursor-outline { display: none; }
+    }
+
+    @media (max-width: 767px) {
+        /* Lighter glass effect — GPU saving */
+        .glass-card {
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        /* Remove noise texture paint cost */
+        .bg-noise { display: none; }
+
+        /* CSS gradient replaces Three.js on mobile */
+        #canvas-container-3d {
+            background:
+                radial-gradient(ellipse 130% 80% at 8% 35%, rgba(0, 243, 255, 0.07) 0%, transparent 55%),
+                radial-gradient(ellipse 130% 80% at 92% 15%, rgba(255, 87, 34, 0.05) 0%, transparent 55%),
+                radial-gradient(ellipse 80% 60% at 50% 95%, rgba(120, 80, 255, 0.04) 0%, transparent 50%);
+        }
+
+        /* Reduce hero glow blobs */
+        .hero-blob {
+            width: 200px !important;
+            height: 200px !important;
+            filter: blur(60px) !important;
+        }
+
+        /* Mobile menu link touch area */
+        .mobile-nav-link {
+            display: block;
+            padding: 14px 0;
+            font-size: 1.125rem;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        html.light .mobile-nav-link {
+            border-bottom-color: rgba(0,0,0,0.07);
+        }
+    }
 </style>
 </head>
 
@@ -232,9 +292,19 @@ rel="stylesheet">
     <div id="cursor-dot"></div>
     <div id="cursor-outline"></div>
 
-    <!-- Three.js & Background Script -->
-    <script src="assets/js/three.min.js"></script>
-    <script src="assets/js/background-3d.js" defer></script>
+    <!-- Three.js & 3D Background — desktop only (saves ~600KB on mobile) -->
+    <script>
+        if (window.innerWidth >= 768 && !('ontouchstart' in window)) {
+            var _s = document.createElement('script');
+            _s.src = 'assets/js/three.min.js';
+            _s.onload = function () {
+                var _b = document.createElement('script');
+                _b.src = 'assets/js/background-3d.js';
+                document.body.appendChild(_b);
+            };
+            document.body.appendChild(_s);
+        }
+    </script>
 
     <!-- Cookie Banner -->
     <div x-data="{ show: false }"
@@ -310,15 +380,84 @@ rel="stylesheet">
                 <span class="text-xs font-semibold text-yellow-400 tracking-wide uppercase"
                     x-text="t('badge')">Ближайший слот: Март 2026</span>
             </div>
+
+            <!-- Mobile Hamburger -->
+            <button @click="mobileMenuOpen = !mobileMenuOpen"
+                class="md:hidden w-11 h-11 flex items-center justify-center rounded-full transition-colors"
+                :class="theme === 'light' ? 'text-gray-700' : 'text-white'"
+                aria-label="Toggle menu">
+                <i class="fa-solid text-xl transition-transform duration-200"
+                    :class="mobileMenuOpen ? 'fa-xmark rotate-90' : 'fa-bars'"></i>
+            </button>
         </div>
     </header>
 
-    <main class="pt-32 md:pt-20">
+    <!-- Mobile Navigation Menu -->
+    <div x-show="mobileMenuOpen"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 -translate-y-2"
+        x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100 translate-y-0"
+        x-transition:leave-end="opacity-0 -translate-y-2"
+        class="fixed top-20 left-0 right-0 z-40 md:hidden shadow-2xl"
+        :class="theme === 'light' ? 'bg-white/96 border-b border-gray-200' : 'bg-[#0a0a0a]/96 border-b border-white/10'"
+        style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
+        <nav class="max-w-7xl mx-auto px-6 py-2">
+            <a href="#services" @click="mobileMenuOpen = false"
+                class="mobile-nav-link transition-colors"
+                :class="theme === 'light' ? 'text-gray-700 hover:text-dark' : 'text-gray-200 hover:text-white'"
+                x-text="t('nav.services')">Услуги</a>
+
+            <a href="#portfolio" @click="mobileMenuOpen = false"
+                class="mobile-nav-link transition-colors"
+                :class="theme === 'light' ? 'text-gray-700 hover:text-dark' : 'text-gray-200 hover:text-white'"
+                x-text="t('nav.portfolio')">Портфолио</a>
+
+            <a href="https://t.me/chimitdorzhi" target="_blank" @click="mobileMenuOpen = false"
+                class="mobile-nav-link text-cyan hover:text-white transition-colors">
+                <i class="fa-brands fa-telegram mr-2"></i>
+                <span x-text="t('nav.contact')">Связаться</span>
+            </a>
+
+            <!-- Theme + Lang row -->
+            <div class="flex items-center justify-between py-4">
+                <button @click="toggleTheme"
+                    class="flex items-center gap-2 text-sm font-medium transition-colors"
+                    :class="theme === 'light' ? 'text-gray-600' : 'text-gray-300'">
+                    <i class="fa-solid text-base w-5 text-center"
+                        :class="theme === 'light' ? 'fa-moon' : 'fa-sun text-yellow-400'"></i>
+                    <span x-text="theme === 'light' ? 'Тёмная тема' : 'Светлая тема'"></span>
+                </button>
+
+                <div class="flex space-x-4 text-sm font-bold uppercase">
+                    <button @click="lang = 'ru'"
+                        :class="lang === 'ru' ? 'text-cyan' : (theme === 'light' ? 'text-gray-400' : 'text-gray-500')"
+                        class="hover:text-cyan transition-colors py-1">RU</button>
+                    <button @click="lang = 'en'"
+                        :class="lang === 'en' ? 'text-cyan' : (theme === 'light' ? 'text-gray-400' : 'text-gray-500')"
+                        class="hover:text-cyan transition-colors py-1">EN</button>
+                    <button @click="lang = 'zh'"
+                        :class="lang === 'zh' ? 'text-cyan' : (theme === 'light' ? 'text-gray-400' : 'text-gray-500')"
+                        class="hover:text-cyan transition-colors py-1">CN</button>
+                </div>
+            </div>
+
+            <!-- Scarcity badge on mobile -->
+            <div class="pb-5 flex items-center space-x-2 bg-yellow-400/10 px-3 py-2 rounded-full border border-yellow-400/20 w-fit">
+                <div class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></div>
+                <span class="text-xs font-semibold text-yellow-400 tracking-wide uppercase"
+                    x-text="t('badge')">Ближайший слот: Март 2026</span>
+            </div>
+        </nav>
+    </div>
+
+    <main class="pt-20">
         <!-- Hero Section -->
         <section class="min-h-screen flex items-center justify-center relative overflow-hidden px-6 lg:px-12">
             <!-- Background Elements -->
-            <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan/20 rounded-full blur-[120px] animate-float"></div>
-            <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-orange/10 rounded-full blur-[120px] animate-float"
+            <div class="hero-blob absolute top-1/4 left-1/4 w-96 h-96 bg-cyan/20 rounded-full blur-[120px] animate-float"></div>
+            <div class="hero-blob absolute bottom-1/4 right-1/4 w-96 h-96 bg-orange/10 rounded-full blur-[120px] animate-float"
                 style="animation-duration: 8s; animation-delay: 1s;"></div>
 
             <div class="max-w-4xl w-full relative z-10 text-center space-y-8">
@@ -519,6 +658,7 @@ rel="stylesheet">
                             <div class="absolute inset-0 bg-dark">
                                 <img :src="`assets/images/${project.img}`"
                                     class="w-full h-full object-cover object-top opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 ease-out"
+                                    loading="lazy"
                                     alt="Project Thumbnail">
                             </div>
 
@@ -622,9 +762,9 @@ rel="stylesheet">
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('appData', () => ({
-                lang: 'ru', // 'ru', 'en', 'zh'
-                theme: 'dark', // 'dark', 'light'
-
+                lang: 'ru',
+                theme: 'dark',
+                mobileMenuOpen: false,
                 filter: 'all',
 
                 toggleTheme() {
@@ -761,37 +901,36 @@ rel="stylesheet">
             }));
         });
 
-        // Magnetic Cursor Logic
+        // Magnetic Cursor Logic (desktop only)
         document.addEventListener('DOMContentLoaded', () => {
-            const cursorDot = document.getElementById('cursor-dot');
-            const cursorOutline = document.getElementById('cursor-outline');
+            const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 
-            window.addEventListener('mousemove', (e) => {
-                const posX = e.clientX;
-                const posY = e.clientY;
+            if (!isTouch) {
+                const cursorDot = document.getElementById('cursor-dot');
+                const cursorOutline = document.getElementById('cursor-outline');
 
-                cursorDot.style.left = `${posX}px`;
-                cursorDot.style.top = `${posY}px`;
+                window.addEventListener('mousemove', (e) => {
+                    const posX = e.clientX;
+                    const posY = e.clientY;
 
-                cursorOutline.animate({
-                    left: `${posX}px`,
-                    top: `${posY}px`
-                }, { duration: 500, fill: "forwards" });
+                    cursorDot.style.left = `${posX}px`;
+                    cursorDot.style.top = `${posY}px`;
 
-                // Hover check
-                const target = e.target.closest('.magnetic-target');
-                if (target) {
-                    document.body.classList.add('hovering');
-                } else {
-                    document.body.classList.remove('hovering');
-                }
-            });
+                    cursorOutline.animate({
+                        left: `${posX}px`,
+                        top: `${posY}px`
+                    }, { duration: 500, fill: "forwards" });
 
-            // Intersection Observer
-            const observerOptions = {
-                threshold: 0.1
-            };
+                    const target = e.target.closest('.magnetic-target');
+                    if (target) {
+                        document.body.classList.add('hovering');
+                    } else {
+                        document.body.classList.remove('hovering');
+                    }
+                });
+            }
 
+            // Intersection Observer — runs on all devices
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -799,9 +938,9 @@ rel="stylesheet">
                         entry.target.classList.remove('opacity-0', 'translate-y-10');
                     }
                 });
-            }, observerOptions);
+            }, { threshold: 0.1 });
 
-            // Wait for alpine to render
+            // Wait for Alpine to render
             setTimeout(() => {
                 document.querySelectorAll('section > div').forEach(section => {
                     section.classList.add('transition-all', 'duration-1000', 'opacity-0', 'translate-y-10');
